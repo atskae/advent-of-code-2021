@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 def get_rates_for_power_consumption(binary_nums: list[str]) -> tuple[int, int]:
     # Create a mapping: column # -> # of zeros
     # # of ones = # rows - # zeros
