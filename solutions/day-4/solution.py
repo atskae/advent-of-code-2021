@@ -1,6 +1,7 @@
 class Board:
     def __init__(self, board, num_pos):
         self.board = board
+        self.marked_board = [[False] * len(board[0]) for _ in range(len(board))]
         # Mapping: num -> (row, col) position on the board
         self.num_pos = num_pos
 
@@ -50,12 +51,6 @@ def parse_input_file(input_file_name: str) -> tuple[list[int], list[Board]]:
 def main():
     input_file_name = "example_input.txt"
     nums_drawn, boards = parse_input_file(input_file_name)
-    print("nums_drawn", nums_drawn)
-    for i, board in enumerate(boards):
-        print(f"board {i}")
-        print(board)
 
-        for key in board.num_pos.keys():
-            print(f"{key}: {board.num_pos[key]}")
 
 main()
