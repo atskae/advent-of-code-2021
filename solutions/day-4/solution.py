@@ -3,12 +3,12 @@ class Board:
         self.board = board
         self.num_rows = len(board)
         self.num_cols = len(board[0])
-
-        self.marked_board = [[False] * self.num_cols for _ in range(self.num_rows)]
-
         # Mapping: num -> (row, col) position on the board
         self.num_pos = num_pos
+
+        self.marked_board = [[False] * self.num_cols for _ in range(self.num_rows)]
         self.last_num_marked = None
+        self.won = False
 
     @staticmethod
     def _get_matrix_str(matrix):
@@ -45,6 +45,7 @@ class Board:
                 num_marked_in_row += 1
         if num_marked_in_row == self.num_cols:
             print("Winning row: ", self.board[row])
+            self.won = True
             return True
 
         # Check the column of the last number marked
@@ -58,9 +59,13 @@ class Board:
             print("Winning column:")
             for num in winning_column:
                 print(num)
+            self.won = True
             return True
 
         return False
+
+    def already_won(self) -> bool:
+        return self.won
 
     def get_sum_unmarked_num(self) -> int:
         unmarked_sum = 0
@@ -115,21 +120,40 @@ def main():
         print(board)
 
     winning_board = None
+    losing_board = None
+    losing_boards = list(range(len(boards)))
     for num_drawn in nums_drawn:
         print(f"Number drawn: {num_drawn}")
         for i, board in enumerate(boards):
+            if board.already_won():
+                continue
+
             board.mark_num(num_drawn)
             if board.is_winner():
-                print(f"Board {i} is the winner!")
-                winning_board = board
-                break
-        if winning_board:
+                print(f"Board {i} got Bingo!")
+                if winning_board is None:
+                    print(f"Board {i} is the winner!")
+                    winning_board = board
+
+                if len(losing_boards) == 1 and losing_board is None:
+                    print(f"Board {i} is the loser...")
+                    losing_board = board
+                losing_boards.remove(i)
+
+        if losing_board is not None and losing_board.already_won():
             break
 
     winning_board.print_marked_board()
     sum_unmarked = winning_board.get_sum_unmarked_num()
     puzzle_answer = sum_unmarked * winning_board.last_num_marked
-    print(f"Puzzle answer: {sum_unmarked} * {winning_board.last_num_marked} = {puzzle_answer}")
+    print(f"Part 1 answer: {sum_unmarked} * {winning_board.last_num_marked} = {puzzle_answer}")
+
+    print("The losing board:")
+    print(losing_board)
+    losing_board.print_marked_board()
+    sum_unmarked = losing_board.get_sum_unmarked_num()
+    puzzle_answer = sum_unmarked * losing_board.last_num_marked
+    print(f"Part 2 answer: {sum_unmarked} * {losing_board.last_num_marked} = {puzzle_answer}")
 
 
 main()
