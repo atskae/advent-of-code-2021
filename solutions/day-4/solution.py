@@ -33,6 +33,9 @@ class Board:
 
     def is_winner(self) -> bool:
         """This only checks the row and column of the last number marked"""
+        if self.last_num_marked not in self.num_pos:
+            return False
+
         row, col = self.num_pos[self.last_num_marked]
 
         # Check the row of the last number marked
@@ -105,7 +108,7 @@ def parse_input_file(input_file_name: str) -> tuple[list[int], list[Board]]:
 
 
 def main():
-    input_file_name = "example_input.txt"
+    input_file_name = "input.txt"
     nums_drawn, boards = parse_input_file(input_file_name)
     for i, board in enumerate(boards):
         print(f"Board # {i}")
