@@ -59,6 +59,14 @@ class Board:
 
         return False
 
+    def get_sum_unmarked_num(self) -> int:
+        unmarked_sum = 0
+        for row in range(self.num_rows):
+            for col in range(self.num_cols):
+                if not self.marked_board[row][col]:
+                    unmarked_sum += self.board[row][col]
+        return unmarked_sum
+
 
 def parse_input_file(input_file_name: str) -> tuple[list[int], list[Board]]:
     input_file = open(input_file_name, "r")
@@ -116,6 +124,9 @@ def main():
             break
 
     winning_board.print_marked_board()
+    sum_unmarked = winning_board.get_sum_unmarked_num()
+    puzzle_answer = sum_unmarked * winning_board.last_num_marked
+    print(f"Puzzle answer: {sum_unmarked} * {winning_board.last_num_marked} = {puzzle_answer}")
 
 
 main()
