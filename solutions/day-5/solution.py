@@ -3,12 +3,12 @@ import re
 
 class FieldMap:
 
-    def _fill_map(self, skip_diagonals=True):
+    def _fill_map(self, include_diagonals=True):
         for line in self.lines:
             (x1, y1) = line[0]
             (x2, y2) = line[1]
             # print(f"({x1},{y1}) -> ({x2},{y2})")
-            if skip_diagonals:
+            if not include_diagonals:
                 if not (x1 == x2 or y1 == y2):
                     # print("Skipping")
                     continue
@@ -20,12 +20,15 @@ class FieldMap:
                 p2 = y2
                 if y1 > y2:
                     step = -1
-            else:
+            elif y1 == y2:
                 # Horizontal line
                 p1 = x1
                 p2 = x2
                 if x1 > x2:
                     step = -1
+            else:
+                # Diagonal line
+                print("Diagonally!")
 
             # print(f"p1={p1}, p2+step={p2+step}, step={step}")
             for z in range(p1, p2 + step, step):
@@ -43,11 +46,11 @@ class FieldMap:
 
                 # print(f"{p}: {self.map[p]}")
 
-    def __init__(self, lines, skip_diagonals=True):
+    def __init__(self, lines, include_diagonals=False):
         self.map = {}
         self.lines = lines
         self.num_overlaps = 0
-        self._fill_map(skip_diagonals=skip_diagonals)
+        self._fill_map(include_diagonals=include_diagonals)
 
 
 def parse_input_file(input_file_name: str) -> list[list[tuple[int, int]]]:
@@ -70,10 +73,12 @@ def main():
     input_file_name = "input.txt"
     print(f"Reading in: {input_file_name}")
     lines = parse_input_file(input_file_name)
-    field_map_no_diagonals = FieldMap(lines, skip_diagonals=True)
-    #for point in sorted(field_map.map.keys()):
-    #    print(f"{point}: {field_map.map[point]}")
+    field_map_no_diagonals = FieldMap(lines, include_diagonals=False)
     print("num_overlaps", field_map_no_diagonals.num_overlaps)
+
+    field_map_with_diagonals = FieldMap(lines, include_diagonals=True)
+    for point in sorted(field_map_with_diagonals.map.keys()):
+        print(f"{point}: {field_map_with_diagonals.map[point]}")
 
 
 main()
