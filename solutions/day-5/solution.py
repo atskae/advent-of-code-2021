@@ -3,17 +3,18 @@ import re
 
 class FieldMap:
 
-    def _fill_map(self, include_diagonals=True):
+    def _fill_map(self, include_diagonals=False):
         for line in self.lines:
             (x1, y1) = line[0]
             (x2, y2) = line[1]
-            # print(f"({x1},{y1}) -> ({x2},{y2})")
+            print(f"Original: {x1, y1} -> {x2, y2}")
             if not include_diagonals:
                 if not (x1 == x2 or y1 == y2):
-                    # print("Skipping")
+                    print("Skipping")
                     continue
 
             step = 1
+            is_diagonal = False
             if x1 == x2:
                 # Vertical line
                 p1 = y1
@@ -29,22 +30,46 @@ class FieldMap:
             else:
                 # Diagonal line
                 print("Diagonally!")
+                is_diagonal = True
 
-            # print(f"p1={p1}, p2+step={p2+step}, step={step}")
-            for z in range(p1, p2 + step, step):
-                if x1 == x2:  # vertical line
-                    p = (x1, z)
+            if is_diagonal:
+                # Always read from left to right
+                if x1 > x2:
+                    (x1, y1) = line[1]
+                    (x2, y2) = line[0]
+
+                if y1 > y2:
+                    step = (1, -1)
                 else:
-                    p = (z, y1)
+                    step = (1, 1)
 
-                if p not in self.map:
-                    self.map[p] = 0
+                current_point = (x1, y1)
+                print(f"{x1, x2} -> {x2, y2}, step={step}")
+                while current_point <= (x2, y2):
+                    print(f"current_point={current_point}")
+                    if current_point not in self.map:
+                        self.map[current_point] = 0
 
-                self.map[p] += 1
-                if self.map[p] == 2:
-                    self.num_overlaps += 1
+                    self.map[current_point] += 1
+                    if self.map[current_point] == 2:
+                        self.num_overlaps += 1
+                    current_point = tuple(map(sum, zip(current_point, step)))
 
-                # print(f"{p}: {self.map[p]}")
+            else:
+                for z in range(p1, p2 + step, step):
+                    if x1 == x2:  # vertical line
+                        p = (x1, z)
+                    else:
+                        p = (z, y1)
+
+                    if p not in self.map:
+                        self.map[p] = 0
+
+                    self.map[p] += 1
+                    if self.map[p] == 2:
+                        self.num_overlaps += 1
+
+                    # print(f"{p}: {self.map[p]}")
 
     def __init__(self, lines, include_diagonals=False):
         self.map = {}
@@ -70,15 +95,16 @@ def parse_input_file(input_file_name: str) -> list[list[tuple[int, int]]]:
 
 
 def main():
-    input_file_name = "input.txt"
+    input_file_name = "example_input.txt"
     print(f"Reading in: {input_file_name}")
     lines = parse_input_file(input_file_name)
-    field_map_no_diagonals = FieldMap(lines, include_diagonals=False)
-    print("num_overlaps", field_map_no_diagonals.num_overlaps)
+    #field_map_no_diagonals = FieldMap(lines, include_diagonals=False)
+    #print("num_overlaps", field_map_no_diagonals.num_overlaps)
 
     field_map_with_diagonals = FieldMap(lines, include_diagonals=True)
-    for point in sorted(field_map_with_diagonals.map.keys()):
-        print(f"{point}: {field_map_with_diagonals.map[point]}")
+    print("num_overlaps", field_map_with_diagonals.num_overlaps)
+    #for point in sorted(field_map_with_diagonals.map.keys()):
+    #    print(f"{point}: {field_map_with_diagonals.map[point]}")
 
 
 main()
