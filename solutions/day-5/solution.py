@@ -7,10 +7,10 @@ class FieldMap:
         for line in self.lines:
             (x1, y1) = line[0]
             (x2, y2) = line[1]
-            print(f"Original: {x1, y1} -> {x2, y2}")
+            #print(f"Original: {x1, y1} -> {x2, y2}")
             if not include_diagonals:
                 if not (x1 == x2 or y1 == y2):
-                    print("Skipping")
+                    #print("Skipping")
                     continue
 
             step = 1
@@ -29,7 +29,7 @@ class FieldMap:
                     step = -1
             else:
                 # Diagonal line
-                print("Diagonally!")
+                #print("Diagonally!")  # not Diagon Alley
                 is_diagonal = True
 
             if is_diagonal:
@@ -44,9 +44,9 @@ class FieldMap:
                     step = (1, 1)
 
                 current_point = (x1, y1)
-                print(f"{x1, x2} -> {x2, y2}, step={step}")
+                #print(f"{x1, x2} -> {x2, y2}, step={step}")
                 while current_point <= (x2, y2):
-                    print(f"current_point={current_point}")
+                    #print(f"current_point={current_point}")
                     if current_point not in self.map:
                         self.map[current_point] = 0
 
@@ -95,7 +95,7 @@ def parse_input_file(input_file_name: str) -> list[list[tuple[int, int]]]:
 
 
 def main():
-    input_file_name = "example_input.txt"
+    input_file_name = "input.txt"
     print(f"Reading in: {input_file_name}")
     lines = parse_input_file(input_file_name)
     #field_map_no_diagonals = FieldMap(lines, include_diagonals=False)
