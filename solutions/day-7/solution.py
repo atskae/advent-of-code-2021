@@ -1,7 +1,5 @@
 from math import ceil
 
-cost_cache = {}
-
 
 def parse_input_file(input_file_name) -> list[int]:
     print(f"Reading input: {input_file_name}")
@@ -10,9 +8,8 @@ def parse_input_file(input_file_name) -> list[int]:
         return [int(pos) for pos in line.split(",")]
 
 
-def calculate_cost(num_crabs, current_pos) -> int:
+def calculate_cost(cost_cache, num_crabs, current_pos, rated_cost) -> int:
     """Calculate the cost to move all crab to pos"""
-    global cost_cache
     if current_pos in cost_cache:
         return cost_cache[current_pos]
 
@@ -20,24 +17,31 @@ def calculate_cost(num_crabs, current_pos) -> int:
     for pos in num_crabs.keys():
         if pos == current_pos:
             continue
-        cost += (abs(current_pos - pos) * num_crabs[pos])
-    #print(f"Cost to move to position {current_pos}: {cost}")
+        num_steps = abs(current_pos - pos)
+        if rated_cost:
+            steps = list(range(1, num_steps+1))
+            cost += (sum(steps) * num_crabs[pos])
+        else:
+            cost += (num_steps * num_crabs[pos])
+
+    print(f"Cost to move to position {current_pos}: {cost}")
     cost_cache[current_pos] = cost
     return cost_cache[current_pos]
 
 
-def _r_find_min(num_crabs, left_index, right_index) -> tuple[int, int]:
+def _r_find_min(cost_cache, num_crabs, left_index, right_index, rated_cost) -> tuple[int, int]:
+    print(f"left_index={left_index}, right_index={right_index}")
     if left_index == right_index:
-        cost = calculate_cost(num_crabs, left_index)
+        cost = calculate_cost(cost_cache, num_crabs, left_index, rated_cost)
         return left_index, cost
 
     midpoint = left_index + ceil((right_index - left_index) / 2)
-    left_cost = calculate_cost(num_crabs, midpoint-1)
-    right_cost = calculate_cost(num_crabs, midpoint)
+    left_cost = calculate_cost(cost_cache, num_crabs, midpoint-1, rated_cost)
+    right_cost = calculate_cost(cost_cache, num_crabs, midpoint, rated_cost)
     if left_cost < right_cost:
-        return _r_find_min(num_crabs, left_index, midpoint-1)
+        return _r_find_min(cost_cache, num_crabs, left_index, midpoint-1, rated_cost)
     else:
-        return _r_find_min(num_crabs, midpoint, right_index)
+        return _r_find_min(cost_cache, num_crabs, midpoint, right_index, rated_cost)
 
 
 def main():
@@ -56,7 +60,13 @@ def main():
         num_crabs[pos] += 1
 
     print(f"max_pos={max_pos}")
-    pos, min_cost = _r_find_min(num_crabs, 0, max_pos)
+    cost_cache = {}
+    pos, min_cost = _r_find_min(cost_cache, num_crabs, 0, max_pos, False)
+    print(f"pos={pos}, min_cost={min_cost}")
+
+    print("Part 2")
+    cost_cache.clear()
+    pos, min_cost = _r_find_min(cost_cache, num_crabs, 0, max_pos, True)
     print(f"pos={pos}, min_cost={min_cost}")
 
 
