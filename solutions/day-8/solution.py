@@ -21,7 +21,7 @@ def parse_input_file(input_file_name) -> list[DigitEntry]:
 
 
 def main():
-    input_file_name = "input.txt"
+    input_file_name = "example_input_small.txt"
     digit_entries = parse_input_file(input_file_name)
 
     total_unique = 0
@@ -34,7 +34,7 @@ def main():
                 total_unique += 1
     print(f"Total unique: {total_unique}")
 
-    digits = {
+    digit_to_segments = {
         0: ['a', 'b', 'c', 'e', 'f', 'g'],
         1: ['c', 'f'],
         2: ['a', 'c', 'd', 'e', 'g'],
@@ -47,19 +47,50 @@ def main():
         9: ['a', 'b', 'c', 'd', 'f', 'g']
     }
 
-    segments_map = {}
-    for digit in digits.keys():
-        segments = digits[digit]
+    # Number of segments -> digit
+    unique_segments = {
+        2: 1,
+        3: 7,
+        4: 4,
+        7: 8
+    }
+
+    for digit_entry in digit_entries:
+        signals = digit_entry.signals
+        # Segment -> Segment
+        signal_map = {}
+
+        # First figure out the mapping
+        for signal in signals:
+            num_segments = len(signal)
+            if num_segments in unique_segments:
+                digit = unique_segments[num_segments]
+                mapping = digit_to_segments[digit]
+                for i in range(0, num_segments):
+                    if signal[i] in signal_map:
+                        continue
+                    signal_map[signal[i]] = mapping[i]
+            if len(signal_map) == 7:
+                # Mapping is complete
+                print("signal_map complete.")
+                for segment in sorted(signal_map.keys()):
+                    print(f"{segment} -> {signal_map[segment]}")
+                break
+
+    num_segments_to_digits = {}
+    for digit in digit_to_segments.keys():
+        segments = digit_to_segments[digit]
         num_segments = len(segments)
         print(f"{digit}: {num_segments} segments: {segments}")
 
-        if num_segments not in segments_map:
-            segments_map[num_segments] = []
+        if num_segments not in num_segments_to_digits:
+            num_segments_to_digits[num_segments] = []
 
-        segments_map[num_segments].append(digit)
+        num_segments_to_digits[num_segments].append(digit)
 
-    for num_segments in sorted(segments_map.keys()):
-        print(f"Digits with {num_segments} segments: {segments_map[num_segments]}")
+    for num_segments in sorted(num_segments_to_digits.keys()):
+        print(f"Digits with {num_segments} segments: {num_segments_to_digits[num_segments]}")
 
 
-main()
+if __name__ == "__main__":
+    main()
