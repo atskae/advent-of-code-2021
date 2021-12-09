@@ -35,6 +35,43 @@ def get_adj_heights(height_map, row, col) -> list[int]:
     return adj_heights
 
 
+def _r_explore_adjacent(height_map, explored, row, col):
+    if row < 0 or col < 0:
+        return
+
+    # Test out of bounds or end of basin
+    try:
+        if height_map[row][col] == 9:
+            return
+    except IndexError:
+        return
+
+    if (row, col) in explored:
+        return
+
+    # Mark this spot as explored
+    explored[(row, col)] = True
+
+    adj_positions = [
+        (row - 1, col),  # up
+        (row, col + 1),  # right
+        (row + 1, col),  # down
+        (row, col - 1),  # left
+    ]
+
+    height = height_map[row][col]
+    for (adj_row, adj_col) in adj_positions:
+        if adj_row < 0 or adj_col < 0:
+            continue
+
+        try:
+            adj_height = height_map[adj_row][adj_col]
+            if abs(height - adj_height) == 1 and adj_height != 9:
+                _r_explore_adjacent(height_map, explored, adj_row, adj_col)
+        except IndexError:
+            pass
+
+
 def main():
     input_file_name = "input.txt"
     height_map = parse_input_file(input_file_name)
@@ -42,11 +79,12 @@ def main():
         print(row)
 
     risk_levels = []
+    low_points = []
     for row in range(0, len(height_map)):
         for col in range(0, len(height_map[row])):
             adj_heights = get_adj_heights(height_map, row, col)
-            print(f"row={row}, col={col}")
-            print("adj_heights", adj_heights)
+            #print(f"row={row}, col={col}")
+            #print("adj_heights", adj_heights)
             height = height_map[row][col]
             is_lowest_point = True
             for adj_height in adj_heights:
@@ -55,10 +93,30 @@ def main():
                     break
 
             if is_lowest_point:
+                low_points.append((row, col))
                 risk_levels.append(height+1)
 
     print("risk_levels", risk_levels)
     print("sum(risk_levels)", sum(risk_levels))
+
+    print(f"low_points", low_points)
+    basin_sizes = []
+    for (row, col) in low_points:
+        explored = {}
+        _r_explore_adjacent(height_map, explored, row, col)
+        basin_size = len(explored.keys())
+        basin_sizes.append(basin_size)
+        #print(f"row={row}, col={col}")
+        #print("basin", explored.keys())
+
+    print("basin_sizes", sorted(basin_sizes))
+    top_three = sorted(basin_sizes)[-3:]
+    print("top three", top_three)
+
+    basin_size_multiplied = 1
+    for basin_size in top_three:
+        basin_size_multiplied *= basin_size
+    print("top three multiplied: ", basin_size_multiplied)
 
 
 main()
