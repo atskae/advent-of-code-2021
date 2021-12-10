@@ -57,51 +57,27 @@ def main():
     for char in set("abcdefg"):
         segment_to_segment[char] = set("abcdefg")
 
-    matches_found = 0
     for num_segments in sorted(num_segments_to_segments.keys()):
         segments = num_segments_to_segments[num_segments]
         print(f"{num_segments}: {segments}")
-        if len(segments) == 1:
-            match_found = eliminate_non_matches(
-                segment_to_segment, segments[0],
-                correct_num_segments_to_segments[num_segments][0]
-            )
-            if match_found:
-                matches_found += 1
-        else:
-            correct_segments = correct_num_segments_to_segments[num_segments]
 
-            common = segments[0]
-            correct_common = correct_segments[0]
-            for s in segments:
-                common &= s
-            for s in correct_segments:
-                correct_common &= s
+        correct_segments = correct_num_segments_to_segments[num_segments]
 
-            print(f"common={common}, correct_common={correct_common}")
-            match_found = eliminate_non_matches(segment_to_segment, common, correct_common)
-            if match_found:
-                matches_found += 1
+        common = segments[0]
+        correct_common = correct_segments[0]
+        for s in segments:
+            common &= s
+        for s in correct_segments:
+            correct_common &= s
 
-            total = set()
-            correct_total = set()
-            for s in segments:
-                total = total.union(s)
-            for s in correct_segments:
-                correct_total = correct_total.union(s)
-
-            uncommon = total - common
-            correct_uncommon = correct_total - correct_common
-            print(f"uncommon={uncommon}, correct_uncommon={correct_uncommon}")
-            match_found = eliminate_non_matches(segment_to_segment, uncommon, correct_uncommon)
-            if match_found:
-                matches_found += 1
+        print(f"common={common}, correct_common={correct_common}")
+        eliminate_non_matches(segment_to_segment, common, correct_common)
 
     print("---")
     for s in sorted(segment_to_segment.keys()):
         print(f"{s}: {segment_to_segment[s]}")
+        assert len(segment_to_segment[s]) == 1
 
-    assert matches_found == 7
 
 
 main()
