@@ -46,7 +46,7 @@ def _r_explore_adjacent(height_map, explored, row, col):
     except IndexError:
         return
 
-    if (row, col) in explored:
+    if (row, col) in explored.keys():
         return
 
     # Mark this spot as explored
@@ -66,7 +66,7 @@ def _r_explore_adjacent(height_map, explored, row, col):
 
         try:
             adj_height = height_map[adj_row][adj_col]
-            if abs(height - adj_height) == 1 and adj_height != 9:
+            if adj_height > height and adj_height != 9:
                 _r_explore_adjacent(height_map, explored, adj_row, adj_col)
         except IndexError:
             pass
