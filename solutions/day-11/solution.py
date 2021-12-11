@@ -88,7 +88,11 @@ def main():
     num_rows = len(energy_grid)
     num_cols = len(energy_grid[0])
     total_flashes = 0
-    for step in range(1, max_steps+1):  # exclusive
+    first_simultaneous_flash = 0
+    total_octopus = num_rows * num_cols
+    step = 1
+    while first_simultaneous_flash == 0:
+
         #print(f"=== STEP {step} ===")
 
         # Increase every energy level
@@ -104,11 +108,20 @@ def main():
             for col in range(0, num_cols):
                 _r_try_emit_flash(num_flashes, energy_grid, step, row, col)
 
-        total_flashes += num_flashes[0]
-        print(f"Number of flashes in step {step}: {num_flashes[0]}")
+        if num_flashes[0] == total_octopus:
+            print(f"* * * FLASH * * *")
+            first_simultaneous_flash = step
+
+        if step <= max_steps:
+            total_flashes += num_flashes[0]
+
+        print(f"Number of flashes in step {step}: {num_flashes[0]}/{total_octopus}")
         #print_energy_grid(energy_grid)
 
+        step += 1
+
     print(f"Total flashes in {max_steps} steps: {total_flashes}")
+    print(f"First simultaneous flash: step {first_simultaneous_flash}")
 
 
 main()
