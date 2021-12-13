@@ -67,6 +67,26 @@ def main(argv):
 
     print(f"{len(dots)} dots after {len(folds)} folds")
 
+    # Print by row
+    row_major = {}
+    for dot in sorted(dots, key=lambda d: d.y):
+        row = dot.y
+        if row not in row_major:
+            row_major[row] = []
+        row_major[row].append(dot)
+
+    for row in row_major.keys():
+        prev_dot = Dot(0, row)
+        for dot in sorted(row_major[row], key=lambda d: d.x):
+            num_empty = dot.x - prev_dot.x - 1
+            for _ in range(num_empty):
+                print(".", end='')
+            print("#", end='')
+            prev_dot = dot
+
+        # Print new line
+        print("")
+
 
 if __name__ == "__main__":
     main(sys.argv)
