@@ -5,6 +5,7 @@ import sys
 
 Dot = namedtuple("Dot", "x,y")
 
+
 class FoldDirection(Enum):
     x = 'x'
     y = 'y'
