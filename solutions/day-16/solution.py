@@ -62,7 +62,8 @@ def get_literal_value_from_sub_packet(bit_string, start_index) -> tuple[int, int
 
 def _r_decode_sub_packets(bit_string, packets, start_index) -> int:
 
-    if start_index >= len(bit_string):
+    # Header is 6-bits
+    if start_index + 6 >= len(bit_string):
         return start_index
 
     # Define index ranges
@@ -87,6 +88,8 @@ def _r_decode_sub_packets(bit_string, packets, start_index) -> int:
             # Read the next 15 bits
             num_bits_range = IndexRange(length_type_id_range.end, length_type_id_range.end + 15)
             total_length_in_bits = int(bit_string[num_bits_range.start:num_bits_range.end], 2)
+            print(f"Total length in bits: {total_length_in_bits}")
+
             sub_packet_start_index = num_bits_range.end
             while sub_packet_start_index < num_bits_range.end + total_length_in_bits:
                 sub_packet_start_index = _r_decode_sub_packets(bit_string, packets, sub_packet_start_index)
@@ -98,6 +101,8 @@ def _r_decode_sub_packets(bit_string, packets, start_index) -> int:
             num_sub_packets_range = IndexRange(length_type_id_range.end, length_type_id_range.end + 11)
             num_sub_packets = int(bit_string[num_sub_packets_range.start:num_sub_packets_range.end], 2)
             max_num_sub_packets = len(packets) + num_sub_packets
+            print(f"Max number of sub packets: {max_num_sub_packets}")
+
             sub_packet_start_index = num_sub_packets_range.end
             while len(packets) < max_num_sub_packets:
                 sub_packet_start_index = _r_decode_sub_packets(bit_string, packets, sub_packet_start_index)
@@ -111,7 +116,8 @@ def _r_decode_sub_packets(bit_string, packets, start_index) -> int:
 
 def decode_packet(bit_string, packets):
     start_index = 0
-    return _r_decode_sub_packets(bit_string, packets, start_index)
+    while start_index+6 < len(bit_string):
+        start_index = _r_decode_sub_packets(bit_string, packets, start_index)
 
 
 def main(argv):
