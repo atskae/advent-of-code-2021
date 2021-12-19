@@ -23,9 +23,29 @@ def parse_input_file(input_file_name):
     return template, rules
 
 
+def print_counts(polymer, step):
+    counts = {}
+    for element in polymer:
+        if element not in counts:
+            counts[element] = 0
+        counts[element] += 1
+
+    counts = sorted(counts.items(), key=lambda e: e[1])
+    least_common = counts[0]
+    most_common = counts[-1]
+    print(f"Counts at step {step}")
+    print("Element counts", counts)
+    print(f"Least common: {least_common}")
+    print(f"Most common: {most_common}")
+
+    difference = most_common[1] - least_common[1]
+    print(f"Difference: {most_common[1]} - {least_common[1]} = {difference}")
+
+
 def main(argv):
     template, rules = parse_input_file(argv[1])
 
+    # Part 1
     max_steps = 10
     polymer = template[:]
     new_polymer = polymer[:]
@@ -42,21 +62,8 @@ def main(argv):
 
         polymer = new_polymer[:]
 
-    counts = {}
-    for element in polymer:
-        if element not in counts:
-            counts[element] = 0
-        counts[element] += 1
-
-    counts = sorted(counts.items(), key=lambda e: e[1])
-    least_common = counts[0]
-    most_common = counts[-1]
-    print("Element counts", counts)
-    print(f"Least common: {least_common}")
-    print(f"Most common: {most_common}")
-
-    difference = most_common[1] - least_common[1]
-    print(f"{most_common[1]} - {least_common[1]} = {difference}")
+        if step == 10:
+            print_counts(polymer, step)
 
 
 if __name__ == "__main__":
