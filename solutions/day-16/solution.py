@@ -72,52 +72,67 @@ def _r_decode_sub_packets(bit_string, packets, start_index) -> int:
 
     version = int(bit_string[version_range.start:version_range.end], 2)
     if int(bit_string[type_id_range.start:type_id_range.end], 2) == 4:
+        print(f"Literal packet with version {version}")
         type_id = PacketType.Literal
-        literal_value, group_index = get_literal_value_from_sub_packet(bit_string, type_id_range.end)
-        packet = Packet(version=version, type_id=type_id, literal_value=literal_value)
-        packets.append(packet)
+        try:
+            literal_value, group_index = get_literal_value_from_sub_packet(bit_string, type_id_range.end)
+            packet = Packet(version=version, type_id=type_id, literal_value=literal_value)
+            packets.append(packet)
+        except (IndexError, ValueError):
+            print("Cannot decode packet further.")
+            return len(bit_string)
+
         return group_index
     else:
-        type_id = PacketType.Operator
-        length_type_id_range = IndexRange(type_id_range.end, type_id_range.end + 1)
-        length_type_id = int(bit_string[length_type_id_range.start:length_type_id_range.end], 2)
-        packet = Packet(version=version, type_id=type_id, literal_value=None)
-        packets.append(packet)
+        print(f"Operator packet with version {version}")
+        try:
+            type_id = PacketType.Operator
+            length_type_id_range = IndexRange(type_id_range.end, type_id_range.end + 1)
+            length_type_id = int(bit_string[length_type_id_range.start:length_type_id_range.end], 2)
+            packet = Packet(version=version, type_id=type_id, literal_value=None)
+            packets.append(packet)
 
-        if length_type_id == 0:
-            # Read the next 15 bits
-            num_bits_range = IndexRange(length_type_id_range.end, length_type_id_range.end + 15)
-            total_length_in_bits = int(bit_string[num_bits_range.start:num_bits_range.end], 2)
-            print(f"Total length in bits: {total_length_in_bits}")
+            if length_type_id == 0:
+                # Read the next 15 bits
+                num_bits_range = IndexRange(length_type_id_range.end, length_type_id_range.end + 15)
+                total_length_in_bits = int(bit_string[num_bits_range.start:num_bits_range.end], 2)
+                print(f"Total length in bits: {total_length_in_bits}")
 
-            sub_packet_start_index = num_bits_range.end
-            while sub_packet_start_index < num_bits_range.end + total_length_in_bits:
-                sub_packet_start_index = _r_decode_sub_packets(bit_string, packets, sub_packet_start_index)
+                sub_packet_start_index = num_bits_range.end
+                while sub_packet_start_index < num_bits_range.end + total_length_in_bits:
+                    sub_packet_start_index = _r_decode_sub_packets(bit_string, packets, sub_packet_start_index)
+                    print(f"Last bit index = {sub_packet_start_index}")
 
-            return sub_packet_start_index
+                return sub_packet_start_index
 
-        elif length_type_id == 1:
-            # Read the next 11 bits
-            num_sub_packets_range = IndexRange(length_type_id_range.end, length_type_id_range.end + 11)
-            num_sub_packets = int(bit_string[num_sub_packets_range.start:num_sub_packets_range.end], 2)
-            max_num_sub_packets = len(packets) + num_sub_packets
-            print(f"Max number of sub packets: {max_num_sub_packets}")
+            elif length_type_id == 1:
+                # Read the next 11 bits
+                num_sub_packets_range = IndexRange(length_type_id_range.end, length_type_id_range.end + 11)
+                num_sub_packets = int(bit_string[num_sub_packets_range.start:num_sub_packets_range.end], 2)
+                max_num_sub_packets = len(packets) + num_sub_packets
+                print(f"Max number of sub packets: {max_num_sub_packets}")
 
-            sub_packet_start_index = num_sub_packets_range.end
-            while len(packets) < max_num_sub_packets:
-                sub_packet_start_index = _r_decode_sub_packets(bit_string, packets, sub_packet_start_index)
+                sub_packet_start_index = num_sub_packets_range.end
+                while len(packets) < max_num_sub_packets:
+                    sub_packet_start_index = _r_decode_sub_packets(bit_string, packets, sub_packet_start_index)
+                    print(f"Total packets so far: {len(packets)}, max={max_num_sub_packets}, index={sub_packet_start_index}")
 
-            return sub_packet_start_index
+                return sub_packet_start_index
 
-        else:
-            print("Corrupt packet!")
-            return -1
+            else:
+                print("Corrupt packet!")
+                return len(bit_string)
+
+        except (IndexError, ValueError):
+            print("Cannot decode packet further.")
+            return len(bit_string)
 
 
 def decode_packet(bit_string, packets):
     start_index = 0
     while start_index+6 < len(bit_string):
         start_index = _r_decode_sub_packets(bit_string, packets, start_index)
+        print(f"Back here! start_index={start_index}, len(bit_string)={len(bit_string)}")
 
 
 def main(argv):
