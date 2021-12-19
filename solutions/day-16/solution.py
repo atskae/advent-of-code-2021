@@ -64,7 +64,7 @@ def _r_decode_sub_packets(bit_string, packets, start_index) -> int:
 
     # Header is 6-bits
     if start_index + 6 >= len(bit_string):
-        return start_index
+        return len(bit_string)
 
     # Define index ranges
     version_range = IndexRange(start_index, start_index+3)
@@ -130,7 +130,7 @@ def _r_decode_sub_packets(bit_string, packets, start_index) -> int:
 
 def decode_packet(bit_string, packets):
     start_index = 0
-    while start_index+6 < len(bit_string):
+    while start_index < len(bit_string):
         start_index = _r_decode_sub_packets(bit_string, packets, start_index)
         print(f"Back here! start_index={start_index}, len(bit_string)={len(bit_string)}")
 
