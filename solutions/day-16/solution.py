@@ -88,7 +88,7 @@ def _r_decode_sub_packets(bit_string, packets, start_index) -> int:
             num_bits_range = IndexRange(length_type_id_range.end, length_type_id_range.end + 15)
             total_length_in_bits = int(bit_string[num_bits_range.start:num_bits_range.end], 2)
             sub_packet_start_index = num_bits_range.end
-            while sub_packet_start_index < total_length_in_bits:
+            while sub_packet_start_index < num_bits_range.end + total_length_in_bits:
                 sub_packet_start_index = _r_decode_sub_packets(bit_string, packets, sub_packet_start_index)
 
             return sub_packet_start_index
@@ -122,8 +122,12 @@ def main(argv):
         print(bit_string)
         decode_packet(bit_string, packets)
 
+    version_sum = 0
     for packet in packets:
         print(packet)
+        version_sum += packet.version
+
+    print(f"Version sum: {version_sum}")
 
 
 if __name__ == "__main__":
